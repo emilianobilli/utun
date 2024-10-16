@@ -48,7 +48,7 @@ int set_mtu(const char *iface_name, int mtu) {
     return 0;
 }
 
-int configure_interface(const char* iface_name, const char* ip_address, const char* netmask) {
+int configure_interface(const char* iface_name, const char* ip_address, const char* netmask, const char *peer_address) {
     struct ifreq ifr;
     int sockfd;
     struct sockaddr_in addr;
@@ -74,6 +74,17 @@ int configure_interface(const char* iface_name, const char* ip_address, const ch
         close(sockfd);
         return -1;
     }
+
+#if defined (__APPLE__)
+    if (peer_address != NULL) {
+        addr.sin_addr.s_addr = inet_addr(peer_address);
+        memcpy(&(ifr.ifr_ifru.ifru_dstaddr), &addr, sizeof(struct sockaddr_in));
+        if (ioctl(sockfd, SIOCSIFDSTADDR, &ifr) < 0) {
+            close(sockfd);
+            return -1;
+        }
+    }
+#endif
 
     // Configurar la máscara de red
     addr.sin_addr.s_addr = inet_addr(netmask);

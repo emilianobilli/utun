@@ -13,6 +13,6 @@ extern int tun_alloc(char *dev);
 #endif
 
 extern char *sys_error();
-extern int configure_interface(const char* iface_name, const char* ip_address, const char* netmask);
+extern int configure_interface(const char* iface_name, const char* ip_address, const char* netmask, const char *peer_address);
 extern int set_mtu(const char *iface_name, int mtu);
 #endif 

@@ -20,7 +20,9 @@ type Utun struct {
 	MTU  int
 }
 
-func (u *Utun) SetIP(cidr string) error {
+const NOPEER = ""
+
+func (u *Utun) SetIP(cidr string, peer string) error {
 	ip, net, err := net.ParseCIDR(cidr)
 	if err != nil {
 		return err
@@ -32,10 +34,21 @@ func (u *Utun) SetIP(cidr string) error {
 	defer func() { C.free(unsafe.Pointer(csip)) }()
 	csmask := C.CString(net.Network())
 	defer func() { C.free(unsafe.Pointer(csmask)) }()
-	ret := C.configure_interface(name, csip, csmask)
-	if ret == -1 {
-		return fmt.Errorf("setting interface address: %v", C.GoString(C.sys_error()))
+
+	if peer != NOPEER {
+		ret := C.configure_interface(name, csip, csmask, nil)
+		if ret == -1 {
+			return fmt.Errorf("setting interface address: %v", C.GoString(C.sys_error()))
+		}
+	} else {
+		cspeer := C.CString(peer)
+		defer func() { C.free(unsafe.Pointer(cspeer)) }()
+		ret := C.configure_interface(name, csip, csmask, cspeer)
+		if ret == -1 {
+			return fmt.Errorf("setting interface address: %v", C.GoString(C.sys_error()))
+		}
 	}
+
 	return nil
 }
 
