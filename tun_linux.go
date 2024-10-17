@@ -35,3 +35,17 @@ func OpenUtun() (*Utun, error) {
 	u.Name = C.GoString(dev)
 	return &u, nil
 }
+
+func (u *Utun) Read(buf []byte) (int, error) {
+	if len(buf) < u.MTU {
+		return 0, fmt.Errorf("invalid buf len, less than MTU")
+	}
+	return u.file.Read(buf[:u.MTU])
+}
+
+func (u *Utun) Write(buf []byte) (int, error) {
+	if len(buf) > u.MTU {
+		return 0, fmt.Errorf("invalid buf len, greather than MTU")
+	}
+	return u.file.Write(buf)
+}

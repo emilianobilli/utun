@@ -35,7 +35,7 @@ func (u *Utun) SetIP(cidr string, peer string) error {
 	csmask := C.CString(net.Network())
 	defer func() { C.free(unsafe.Pointer(csmask)) }()
 
-	if peer != NOPEER {
+	if peer == NOPEER {
 		ret := C.configure_interface(name, csip, csmask, nil)
 		if ret == -1 {
 			return fmt.Errorf("setting interface address: %v", C.GoString(C.sys_error()))
@@ -66,18 +66,4 @@ func (u *Utun) SetMTU(val int) error {
 
 func (u *Utun) Close() {
 	u.file.Close()
-}
-
-func (u *Utun) Read(buf []byte) (int, error) {
-	if len(buf) < u.MTU {
-		return 0, fmt.Errorf("invalid buf len, less than MTU")
-	}
-	return u.file.Read(buf[:u.MTU])
-}
-
-func (u *Utun) Write(buf []byte) (int, error) {
-	if len(buf) > u.MTU {
-		return 0, fmt.Errorf("invalid buf len, greather than MTU")
-	}
-	return u.file.Write(buf)
 }
