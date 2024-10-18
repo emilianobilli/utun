@@ -23,16 +23,18 @@ type Utun struct {
 const NOPEER = ""
 
 func (u *Utun) SetIP(cidr string, peer string) error {
-	ip, net, err := net.ParseCIDR(cidr)
+	ip, _, err := net.ParseCIDR(cidr)
 	if err != nil {
 		return err
 	}
+
 	name := C.CString(u.Name)
 	defer func() { C.free(unsafe.Pointer(name)) }()
 
 	csip := C.CString(ip.String())
 	defer func() { C.free(unsafe.Pointer(csip)) }()
-	csmask := C.CString(net.Network())
+
+	csmask := C.CString("255.255.255.0")
 	defer func() { C.free(unsafe.Pointer(csmask)) }()
 
 	if peer == NOPEER {
