@@ -18,13 +18,14 @@
 #include <sys/sys_domain.h>
 #include <net/if_utun.h>
 #include <net/if_dl.h>
+#include <sys/sysctl.h>
 
 #define UTUN_CONTROL_NAME "com.apple.net.utun_control"
 #endif
 
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include <sys/sysctl.h>
+
 #include <net/if.h>
 #include <net/route.h>
 
