@@ -30,6 +30,12 @@
 
 #include <net/route.h>
 
+char *network(in_addr_t ip, in_addr_t mask) {
+    struct in_addr in;
+    in.s_addr = (ip & mask);
+    return inet_ntoa(in);
+}
+
 char *bcast(in_addr_t ip, in_addr_t mask) {
     struct in_addr in;
     in.s_addr = (ip & mask) | ~mask;
@@ -183,6 +189,7 @@ int configure_interface(const char* iface_name, const char* ip_address, const ch
     struct sockaddr_in ip;
     struct sockaddr_in mask;
     struct sockaddr_in peer;
+    char *(*fn)(in_addr_t,in_addr_t); 
 
     if (!addrset(&ip, ip_address) || !addrset(&mask, netmask))
         return -1;
@@ -223,10 +230,12 @@ int configure_interface(const char* iface_name, const char* ip_address, const ch
 #if defined (__linux__)
     ifr.ifr_flags |= (IFF_UP | IFF_RUNNING);
     ioctl(sockfd, SIOCSIFFLAGS, &ifr);
+    fn = network;
+#elif defined(__APPLE__)
+    fn = bcast;
 #endif
-
     close(sockfd);
-    return add_route(bcast(ip.sin_addr.s_addr, mask.sin_addr.s_addr), ip_address, netmask, iface_name);
+    return add_route(fn(ip.sin_addr.s_addr, mask.sin_addr.s_addr), ip_address, netmask, iface_name);
 }
 
 #if defined(__APPLE__)
