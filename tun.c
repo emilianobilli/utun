@@ -29,17 +29,6 @@
 #include <net/if.h>
 #include <net/route.h>
 
-
-static int enable_forward(void) {
-    int value = 1;
-    int mib[] = {CTL_NET, PF_INET, IPPROTO_IP, IPCTL_FORWARDING};
-    if (sysctl(mib, 4, NULL, NULL, &value, sizeof(value)) == -1) {
-        return -1;
-    }
-
-    return 0;
-}
-
 char *bcast(in_addr_t ip, in_addr_t mask) {
     struct in_addr in;
     in.s_addr = (ip & mask) | ~mask;
