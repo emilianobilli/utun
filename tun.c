@@ -30,13 +30,13 @@
 
 #include <net/route.h>
 
-char *network(in_addr_t ip, in_addr_t mask) {
+static char *network(in_addr_t ip, in_addr_t mask) {
     struct in_addr in;
     in.s_addr = (ip & mask);
     return inet_ntoa(in);
 }
 
-char *bcast(in_addr_t ip, in_addr_t mask) {
+static char *bcast(in_addr_t ip, in_addr_t mask) {
     struct in_addr in;
     in.s_addr = (ip & mask) | ~mask;
     return inet_ntoa(in);
@@ -130,8 +130,17 @@ int add_route(const char *dest, const char *gateway, const char *netmask, const 
 
     // Enviar el mensaje al kernel
     if (write(sockfd, &msg, sizeof(msg)) < 0) {
-        close(sockfd);
-        return -1;
+        if (errno == EEXIST) {
+            msg.hdr.rtm_seq = 2;
+            msg.hdr.rtm_type = RTM_CHANGE;
+            if (write(sockfd, &msg, sizeof(msg))<0) {
+                close(sockfd);
+                return -1;
+            }
+        } else {
+            close(sockfd);
+            return -1;
+        }
     }
 
     // Cerrar el socket

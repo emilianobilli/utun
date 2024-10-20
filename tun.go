@@ -22,6 +22,19 @@ type Utun struct {
 
 const NOPEER = ""
 
+func (u *Utun) SetDefaultGw(gw string) error {
+	dst := C.CString("0.0.0.0")
+	defer func() { C.free(unsafe.Pointer(dst)) }()
+	dgw := C.CString(gw)
+	defer func() { C.free(unsafe.Pointer(dgw)) }()
+	name := C.CString(u.Name)
+	defer func() { C.free(unsafe.Pointer(name)) }()
+	if ret := C.add_route(dst, dgw, dst, name); ret == -1 {
+		return fmt.Errorf("setting default gw: %v", C.GoString(C.sys_error()))
+	}
+	return nil
+}
+
 func (u *Utun) SetIP(cidr string, peer string) error {
 	ip, _, err := net.ParseCIDR(cidr)
 	if err != nil {
