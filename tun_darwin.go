@@ -69,3 +69,8 @@ func (u *Utun) Write(buf []byte) (int, error) {
 	copy(tmp[4:], buf)
 	return u.file.Write(tmp[0 : len(buf)+4])
 }
+
+func (u *Utun) Close() {
+	u.file.Close()
+	unix.Close(u.fd)
+}

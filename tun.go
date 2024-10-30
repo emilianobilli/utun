@@ -81,7 +81,3 @@ func (u *Utun) SetMTU(val int) error {
 	u.MTU = val
 	return nil
 }
-
-func (u *Utun) Close() {
-	u.file.Close()
-}

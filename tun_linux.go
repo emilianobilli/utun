@@ -12,6 +12,8 @@ import (
 	"fmt"
 	"os"
 	"unsafe"
+
+	"golang.org/x/sys/unix"
 )
 
 func OpenUtun() (*Utun, error) {
@@ -48,4 +50,9 @@ func (u *Utun) Write(buf []byte) (int, error) {
 		return 0, fmt.Errorf("invalid buf len, greather than MTU")
 	}
 	return u.file.Write(buf)
+}
+
+func (u *Utun) Close() {
+	u.file.Close()
+	unix.Close(u.fd)
 }
