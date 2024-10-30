@@ -44,6 +44,7 @@ func (u *Utun) Read(buf []byte) (int, error) {
 	}
 	for {
 		n, e := u.file.Read(tmp[:u.MTU+4])
+		fmt.Println("Tun inside tun read", n, e)
 		if e != nil {
 			return 0, e
 		}
