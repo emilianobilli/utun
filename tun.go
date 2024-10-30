@@ -18,6 +18,7 @@ type Utun struct {
 	file *os.File
 	Name string
 	MTU  int
+	IP   net.IP
 }
 
 const NOPEER = ""
@@ -40,6 +41,8 @@ func (u *Utun) SetIP(cidr string, peer string) error {
 	if err != nil {
 		return err
 	}
+
+	u.IP = ip
 
 	name := C.CString(u.Name)
 	defer func() { C.free(unsafe.Pointer(name)) }()
